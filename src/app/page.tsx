@@ -1,103 +1,222 @@
-import Image from "next/image";
+"use client";
+
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const formSchema = z.object({
+    firstName: z.string().min(1, "First name is required"),
+    lastName: z.string().min(1, "Last name is required"),
+    email: z.string().email("Invalid email address"),
+    interest: z.enum(["Frontend", "Backend", "Fullstack"]),
+    message: z
+      .string()
+      .min(10, "Message must be at least 10 characters long")
+      .max(500, "Message must be at most 500 characters long"),
+    terms: z.boolean().refine((val) => val === true, {
+      message: "You must accept the terms and conditions",
+    }),
+  });
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      interest: "Frontend",
+      message: "",
+      terms: false,
+    },
+    reValidateMode: "onSubmit",
+  });
+
+  const onSubmit = (data: z.infer<typeof formSchema>) => {
+    // Handle form submission logic here
+    console.log("Form submitted:", data);
+  };
+
+  return (
+    <Card className="w-200 shadow-md border-blue-200">
+      <CardHeader>
+        <CardTitle className="flex items-center justify-center text-blue-400 text-2xl font-semibold">
+          Form Example
+        </CardTitle>
+        <CardDescription className="flex items-center justify-center text-blue-300 text-sm">
+          Form example with React Hook Form, zod, Next.js, shadcn and Tailwind
+          CSS
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <div className="flex items-baseline justify-between gap-8 mb-4">
+              <FormField
+                control={form.control}
+                name="firstName"
+                render={({ field }) => (
+                  <FormItem className="w-1/2">
+                    <FormLabel className="text-blue-400">First Name</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        className="border-blue-200 text-blue-400 focus:border-blue-400"
+                      />
+                    </FormControl>
+                    <FormMessage className="text-red-500" />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="lastName"
+                render={({ field }) => (
+                  <FormItem className="w-1/2">
+                    <FormLabel className="text-blue-400">Last Name</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        className="border-blue-200 text-blue-400 focus:border-blue-400"
+                      />
+                    </FormControl>
+                    <FormMessage className="text-red-500" />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem className="mb-4">
+                  <FormLabel className="text-blue-400">Email</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      className="border-blue-200 text-blue-400 focus:border-blue-400"
+                    />
+                  </FormControl>
+                  <FormMessage className="text-red-500" />
+                </FormItem>
+              )}
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+
+            <FormField
+              control={form.control}
+              name="interest"
+              render={({ field }) => (
+                <FormItem className="mb-4">
+                  <FormLabel className="text-blue-400">
+                    What&apos;s your interest
+                  </FormLabel>
+                  <FormControl>
+                    <RadioGroup
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      className="flex items-center justify-between"
+                    >
+                      <FormItem className="flex items-center gap-2 ">
+                        <FormControl>
+                          <RadioGroupItem value="Frontend" />
+                        </FormControl>
+                        <FormLabel className="font-normal text-blue-400">
+                          Frontend
+                        </FormLabel>
+                      </FormItem>
+                      <FormItem className="flex items-center gap-2">
+                        <FormControl>
+                          <RadioGroupItem value="Backend" />
+                        </FormControl>
+                        <FormLabel className="font-normal text-blue-400">
+                          Backend
+                        </FormLabel>
+                      </FormItem>
+                      <FormItem className="flex items-center gap-2">
+                        <FormControl>
+                          <RadioGroupItem value="Fullstack" />
+                        </FormControl>
+                        <FormLabel className="font-normal text-blue-400">
+                          Fullstack
+                        </FormLabel>
+                      </FormItem>
+                    </RadioGroup>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="message"
+              render={({ field }) => (
+                <FormItem className="mb-4">
+                  <FormLabel className="text-blue-400">Message</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      {...field}
+                      className="border-blue-200 text-blue-400 focus:border-blue-400 resize-none"
+                    />
+                  </FormControl>
+                  <FormMessage className="text-red-500" />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="terms"
+              render={({ field }) => (
+                <div className="flex flex-col gap-2 mb-4">
+                  <FormItem className="flex items-center">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                        className="border-blue-200 text-blue-400 focus:border-blue-400"
+                      />
+                    </FormControl>
+                    <FormLabel className="ml-2 text-blue-400">
+                      I accept the terms and conditions
+                    </FormLabel>
+                  </FormItem>
+                  <FormMessage className="text-red-500" />
+                </div>
+              )}
+            />
+
+            <Button
+              type="submit"
+              className="text-blue-400 border border-blue-200 cursor-pointer hover:bg-blue-100 transition-colors"
+            >
+              Submit
+            </Button>
+          </form>
+        </Form>
+      </CardContent>
+    </Card>
   );
 }
